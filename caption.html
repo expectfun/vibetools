@@ -107,6 +107,25 @@
         padding: 40px 0 64px;
       }
 
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 22px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.95rem;
+        line-height: 1.2;
+        transition: color 140ms ease, transform 140ms ease;
+      }
+
+      .back-link:hover,
+      .back-link:focus-visible {
+        color: var(--accent);
+        outline: none;
+        transform: translateX(-2px);
+      }
+
       .hero {
         margin-bottom: 28px;
       }
@@ -368,6 +387,8 @@
   </head>
   <body>
     <main class="page">
+      <a class="back-link" href="./index.html">← all tools</a>
+
       <section class="hero">
         <h1>caption</h1>
         <p>Add text to images.</p>

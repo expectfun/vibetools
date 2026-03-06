@@ -3,3 +3,6 @@
 !README
 !README.md
 !*.html
+!assets/
+!assets/fonts/
+!assets/fonts/*.ttf

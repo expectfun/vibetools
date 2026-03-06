@@ -10,7 +10,6 @@
         --bg-end: #1d2742;
         --panel: rgba(16, 22, 36, 0.76);
         --panel-border: rgba(160, 190, 255, 0.16);
-        --panel-soft: rgba(8, 12, 22, 0.42);
         --text: #eef2ff;
         --muted: #9ca8c7;
         --muted-strong: #c6d0ea;
@@ -38,13 +37,13 @@
       }
 
       .page {
-        width: min(1100px, calc(100vw - 32px));
+        width: min(700px, calc(100vw - 32px));
         margin: 0 auto;
         padding: 40px 0 72px;
       }
 
       .hero {
-        margin-bottom: 28px;
+        margin-bottom: 36px;
       }
 
       .hero-copy h1 {
@@ -70,22 +69,19 @@
         backdrop-filter: blur(22px);
       }
 
-      .eyebrow,
-      .section-label,
-      .tool-meta {
+      .section-label {
         letter-spacing: 0.08em;
         text-transform: uppercase;
         font-size: 0.78rem;
       }
 
-      .eyebrow,
       .section-label {
         color: var(--muted-strong);
       }
 
       .catalog {
         display: grid;
-        gap: 18px;
+        gap: 24px;
       }
 
       .section {
@@ -119,8 +115,8 @@
 
       .tool-card {
         display: grid;
-        gap: 14px;
-        padding: 22px 24px;
+        gap: 10px;
+        padding: 20px 22px;
         text-decoration: none;
         color: inherit;
         transition:
@@ -138,53 +134,6 @@
         outline: none;
       }
 
-      .tool-card.coming-soon {
-        cursor: default;
-        opacity: 0.64;
-        background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
-          var(--panel-soft);
-      }
-
-      .tool-topline {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-      }
-
-      .tool-meta {
-        color: var(--muted);
-      }
-
-      .status {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 7px 11px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-size: 0.76rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .status::before {
-        content: "";
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: currentColor;
-        box-shadow: 0 0 16px currentColor;
-      }
-
-      .status.dormant {
-        background: rgba(156, 168, 199, 0.12);
-        color: var(--muted-strong);
-      }
-
       .tool-title {
         margin: 0;
         font-size: clamp(1.4rem, 3vw, 1.8rem);
@@ -198,34 +147,14 @@
         line-height: 1.62;
       }
 
-      .tool-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        color: var(--muted-strong);
-        font-size: 0.95rem;
-      }
-
-      .tool-link {
-        color: var(--accent);
-        font-weight: 700;
-      }
-
       @media (max-width: 760px) {
         .page {
-          width: min(100vw - 20px, 1100px);
+          width: min(100vw - 20px, 700px);
           padding-top: 28px;
         }
 
         .tool-card {
           padding: 18px;
-        }
-
-        .tool-topline,
-        .tool-footer {
-          align-items: start;
-          flex-direction: column;
         }
       }
     </style>
@@ -242,55 +171,41 @@
       <section class="catalog">
         <div class="section">
           <div class="section-header">
-            <div class="section-label">Available now</div>
+            <div class="section-label">Text</div>
           </div>
-          <p class="section-description">Working tools you can open immediately.</p>
 
           <div class="tool-list">
-            <a class="tool-card" href="./caption.html">
-              <div class="tool-topline">
-                <div class="tool-meta">Image workflow</div>
-                <div class="status">Live</div>
-              </div>
-
-              <h2 class="tool-title">caption</h2>
+            <a class="tool-card" href="./charcount.html">
+              <h2 class="tool-title">charcount</h2>
               <p class="tool-desc">
-                Add readable text overlays to images. Tune captions, font, crop, and export without stepping into a bloated editor.
+                Count characters and words in a text.
               </p>
-
-              <div class="tool-footer">
-                <span>Standalone HTML tool</span>
-                <span class="tool-link">Open tool</span>
-              </div>
             </a>
           </div>
         </div>
 
         <div class="section">
           <div class="section-header">
-            <div class="section-label">More tools brewing</div>
+            <div class="section-label">Images and media</div>
           </div>
-          <p class="section-description">Space reserved for the next entries, so the structure is ready before the list gets noisy.</p>
 
           <div class="tool-list">
-            <article class="tool-card coming-soon" aria-disabled="true">
-              <div class="tool-topline">
-                <div class="tool-meta">Coming soon</div>
-                <div class="status dormant">Queue</div>
-              </div>
-
-              <h2 class="tool-title">Next slot</h2>
+            <a class="tool-card" href="./caption.html">
+              <h2 class="tool-title">caption</h2>
               <p class="tool-desc">
-                The next standalone tool will land here. The skeleton is already in place, so adding new pages later won’t be a blind scramble.
+                Add readable text overlays to images.
               </p>
+            </a>
 
-              <div class="tool-footer">
-                <span>Reserved catalog card</span>
-                <span>Coming soon</span>
-              </div>
-            </article>
+            <a class="tool-card" href="./palette.html">
+              <h2 class="tool-title">palette</h2>
+              <p class="tool-desc">
+                Extract dominant colors from any image.
+              </p>
+            </a>
           </div>
         </div>
+
       </section>
     </main>
   </body>
