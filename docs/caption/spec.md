@@ -1,4 +1,4 @@
-# `stamp` Specification
+# `caption` Specification
 
 ## Status
 
@@ -6,13 +6,15 @@ Draft for first implementation.
 
 ## Overview
 
-`stamp` is a standalone web tool for turning an image into a text card.
+`caption` is a standalone web tool for turning an image into a text card.
 
 It is based on the behavior of an existing Telegram bot, but the interface must be native to the web: one screen, live preview, direct controls, no chat-like flow.
 
+The production tool should be delivered as a self-contained HTML page that can be opened directly without a build step.
+
 ## Goal
 
-The user uploads an image, enters a caption, adjusts a small set of styling options, previews the result immediately, and downloads the final card as an image.
+The user uploads an image, enters top and/or bottom caption text, adjusts a small set of styling options, previews the result immediately, and downloads the final card as an image.
 
 ## Product Principles
 
@@ -27,7 +29,8 @@ The user uploads an image, enters a caption, adjusts a small set of styling opti
 ### Included in `v1`
 
 - Upload one image.
-- Enter one text caption.
+- Enter bottom caption text.
+- Optionally enter top caption text.
 - Choose one of 8 text fonts.
 - Choose one of 3 text size presets.
 - Choose card aspect ratio.
@@ -44,9 +47,9 @@ The user uploads an image, enters a caption, adjusts a small set of styling opti
 
 ## Core User Flow
 
-1. User opens `stamp.html`.
+1. User opens `caption.html`.
 2. User uploads an image.
-3. User enters caption text.
+3. User enters bottom caption text and optionally top caption text.
 4. User optionally changes font, text size, and card aspect ratio.
 5. Preview updates on the same screen.
 6. User downloads the generated card.
@@ -55,9 +58,11 @@ The user uploads an image, enters a caption, adjusts a small set of styling opti
 
 - The uploaded image is the base layer.
 - A dark bottom gradient is drawn over the lower area of the image.
-- Caption text is placed over that gradient.
+- An additional dark top gradient may be drawn over the upper area when top caption text is present.
+- Bottom caption text is placed over the lower gradient.
+- Optional top caption text is placed over the upper gradient.
 - Text must remain readable on different image backgrounds.
-- The visual model should stay close to the Telegram bot examples: large white text in the lower area over a dark gradient.
+- The visual model should stay close to the Telegram bot examples for the lower caption, while allowing a meme-like top caption when needed.
 
 ## Text Options
 
@@ -107,12 +112,18 @@ Behavior:
 
 ## Interface Requirements
 
-`stamp` must use a web-native layout rather than Telegram-like interaction.
+`caption` must use a web-native layout rather than Telegram-like interaction.
+
+Implementation constraint:
+
+- the production tool should remain a self-contained HTML page;
+- if tests or helper modules exist during development, they must not be required to run the tool.
 
 The page must include:
 
 - image upload area;
-- caption input;
+- top caption input;
+- bottom caption input;
 - font selection controls;
 - text size selection controls;
 - aspect ratio selection controls;
@@ -153,9 +164,9 @@ The design direction is inspired by [DeFi Visualized](https://expectfun.github.i
 - restrained hover and focus states;
 - no decorative clutter.
 
-### `stamp` Page Direction
+### `caption` Page Direction
 
-`stamp` should feel like a creator utility, not a bot wrapper.
+`caption` should feel like a creator utility, not a bot wrapper.
 
 The page should emphasize:
 
@@ -197,10 +208,11 @@ The following is intentionally postponed, but must be tracked:
 
 ## Success Criteria For `v1`
 
-`stamp` is ready for first release when a user can:
+`caption` is ready for first release when a user can:
 
 - upload an image;
-- enter a caption;
+- enter a bottom caption;
+- optionally enter a top caption;
 - switch between available fonts;
 - switch between text size presets;
 - switch between aspect ratio presets;
@@ -209,5 +221,6 @@ The following is intentionally postponed, but must be tracked:
 
 ## Notes
 
-- Visual references live in `docs/stamp/references/`.
-- The product naming direction is `stamp`; docs and structure should converge on that name.
+- Visual references live in `docs/caption/references/`.
+- The product naming direction is `caption`; docs and structure should converge on that name.
+- The preferred production format is a self-contained `caption.html` tool.
