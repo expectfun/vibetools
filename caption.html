@@ -176,6 +176,14 @@
         overflow: hidden;
       }
 
+      .preview-frame.is-drop-target {
+        border-color: rgba(125, 226, 255, 0.5);
+        background:
+          linear-gradient(180deg, rgba(125, 226, 255, 0.12), rgba(255, 255, 255, 0.02)),
+          rgba(9, 13, 24, 0.62);
+        box-shadow: inset 0 0 0 1px rgba(125, 226, 255, 0.18);
+      }
+
       .preview-canvas {
         width: auto;
         height: auto;
@@ -372,7 +380,7 @@
             <span data-preview-status>waiting for image</span>
           </div>
 
-          <div class="preview-frame">
+          <div class="preview-frame" data-preview-frame>
             <canvas class="preview-canvas" data-preview-canvas></canvas>
 
             <div class="empty-state" data-empty-state>
@@ -446,56 +454,64 @@
           label: "Rubik Bold",
           loadFamily: "Rubik",
           fontWeight: 700,
-          fontFamily: '"Rubik", "Segoe UI", sans-serif'
+          fontFamily: '"Rubik", "Segoe UI", sans-serif',
+          typography: { sizeMultiplier: 1, lineHeightMultiplier: 1.08 }
         },
         {
           id: "pt-sans-bold",
           label: "PT Sans Bold",
           loadFamily: "PT Sans",
           fontWeight: 700,
-          fontFamily: '"PT Sans", "Segoe UI", sans-serif'
+          fontFamily: '"PT Sans", "Segoe UI", sans-serif',
+          typography: { sizeMultiplier: 0.98, lineHeightMultiplier: 1.08 }
         },
         {
           id: "comfortaa-bold",
           label: "Comfortaa Bold",
           loadFamily: "Comfortaa",
           fontWeight: 700,
-          fontFamily: '"Comfortaa", "Segoe UI", sans-serif'
+          fontFamily: '"Comfortaa", "Segoe UI", sans-serif',
+          typography: { sizeMultiplier: 0.92, lineHeightMultiplier: 1.16 }
         },
         {
           id: "bad-script",
           label: "Bad Script",
           loadFamily: "Bad Script",
           fontWeight: 400,
-          fontFamily: '"Bad Script", "Segoe UI", cursive'
+          fontFamily: '"Bad Script", "Segoe UI", cursive',
+          typography: { sizeMultiplier: 1.08, lineHeightMultiplier: 1.22 }
         },
         {
           id: "neucha",
           label: "Neucha",
           loadFamily: "Neucha",
           fontWeight: 400,
-          fontFamily: '"Neucha", "Segoe UI", cursive'
+          fontFamily: '"Neucha", "Segoe UI", cursive',
+          typography: { sizeMultiplier: 1.02, lineHeightMultiplier: 1.16 }
         },
         {
           id: "caveat-bold",
           label: "Caveat Bold",
           loadFamily: "Caveat",
           fontWeight: 700,
-          fontFamily: '"Caveat", "Segoe UI", cursive'
+          fontFamily: '"Caveat", "Segoe UI", cursive',
+          typography: { sizeMultiplier: 1.14, lineHeightMultiplier: 1.06 }
         },
         {
           id: "marmelad",
           label: "Marmelad",
           loadFamily: "Marmelad",
           fontWeight: 400,
-          fontFamily: '"Marmelad", "Segoe UI", sans-serif'
+          fontFamily: '"Marmelad", "Segoe UI", sans-serif',
+          typography: { sizeMultiplier: 0.98, lineHeightMultiplier: 1.1 }
         },
         {
           id: "pangolin",
           label: "Pangolin",
           loadFamily: "Pangolin",
           fontWeight: 400,
-          fontFamily: '"Pangolin", "Segoe UI", cursive'
+          fontFamily: '"Pangolin", "Segoe UI", cursive',
+          typography: { sizeMultiplier: 0.98, lineHeightMultiplier: 1.14 }
         }
       ];
 
@@ -617,7 +633,7 @@
         };
       }
 
-      function resolveTextLayout(outputWidth, outputHeight, textSizeId = "medium") {
+      function resolveTextLayout(outputWidth, outputHeight, textSizeId = "medium", fontId = FONT_OPTIONS[0].id) {
         if (
           !Number.isFinite(outputWidth) ||
           !Number.isFinite(outputHeight) ||
@@ -628,12 +644,17 @@
         }
 
         const textSize = getTextSizeOption(textSizeId);
+        const font = getFontOption(fontId);
+        const typography = font.typography ?? { sizeMultiplier: 1, lineHeightMultiplier: 1.1 };
         const base = Math.min(outputWidth, outputHeight);
         const horizontalPadding = Math.max(24, Math.round(outputWidth * 0.06));
         const bottomPadding = Math.max(28, Math.round(outputHeight * 0.06));
         const maxWidth = outputWidth - horizontalPadding * 2;
-        const fontSize = Math.max(24, Math.round(base * 0.075 * textSize.scale));
-        const lineHeight = Math.max(fontSize + 4, Math.round(fontSize * 1.12));
+        const fontSize = Math.max(
+          24,
+          Math.round(base * 0.075 * textSize.scale * typography.sizeMultiplier)
+        );
+        const lineHeight = Math.max(fontSize + 4, Math.round(fontSize * typography.lineHeightMultiplier));
         const maxLines = outputHeight >= outputWidth ? 4 : 3;
 
         return {
@@ -668,7 +689,7 @@
           bottomCaption: state.caption.trim(),
           font,
           textSize,
-          textLayout: resolveTextLayout(output.width, output.height, state.textSizeId),
+          textLayout: resolveTextLayout(output.width, output.height, state.textSizeId, state.fontId),
           gradients: {
             top: {
               from: "rgba(0, 0, 0, 0.88)",
@@ -752,6 +773,7 @@
       }
 
       const form = document.querySelector("[data-caption-form]");
+      const previewFrame = document.querySelector("[data-preview-frame]");
       const previewCanvas = document.querySelector("[data-preview-canvas]");
       const emptyState = document.querySelector("[data-empty-state]");
       const previewStatus = document.querySelector("[data-preview-status]");
@@ -761,6 +783,7 @@
       const state = createStampState();
       const loadedFontRequests = new Map();
       let previewRenderToken = 0;
+      let dragDepth = 0;
 
       populateSelect("font", FONT_OPTIONS, state.fontId);
       populateSelect("size", TEXT_SIZE_OPTIONS, state.textSizeId);
@@ -772,6 +795,55 @@
 
         if (imageInput instanceof HTMLInputElement) {
           imageInput.click();
+        }
+      });
+
+      previewFrame?.addEventListener("dragenter", (event) => {
+        if (!hasImageFile(event.dataTransfer)) {
+          return;
+        }
+
+        event.preventDefault();
+        dragDepth += 1;
+        previewFrame.classList.add("is-drop-target");
+      });
+
+      previewFrame?.addEventListener("dragover", (event) => {
+        if (!hasImageFile(event.dataTransfer)) {
+          return;
+        }
+
+        event.preventDefault();
+        if (event.dataTransfer) {
+          event.dataTransfer.dropEffect = "copy";
+        }
+        previewFrame.classList.add("is-drop-target");
+      });
+
+      previewFrame?.addEventListener("dragleave", (event) => {
+        if (!hasImageFile(event.dataTransfer)) {
+          return;
+        }
+
+        dragDepth = Math.max(0, dragDepth - 1);
+
+        if (dragDepth === 0) {
+          previewFrame.classList.remove("is-drop-target");
+        }
+      });
+
+      previewFrame?.addEventListener("drop", async (event) => {
+        if (!hasImageFile(event.dataTransfer)) {
+          return;
+        }
+
+        event.preventDefault();
+        dragDepth = 0;
+        previewFrame.classList.remove("is-drop-target");
+        const file = getFirstImageFile(event.dataTransfer);
+
+        if (file) {
+          await handleImageFile(file);
         }
       });
 
@@ -836,13 +908,7 @@
           return;
         }
 
-        try {
-          state.image = await loadImage(file);
-          renderPreview();
-        } catch (error) {
-          state.image = null;
-          renderPreview();
-        }
+        await handleImageFile(file);
       });
 
       downloadButton?.addEventListener("click", async () => {
@@ -881,6 +947,42 @@
           node.textContent = option.label;
           node.selected = option.id === selectedId;
           select.append(node);
+        }
+      }
+
+      function hasImageFile(dataTransfer) {
+        if (!dataTransfer) {
+          return false;
+        }
+
+        const items = Array.from(dataTransfer.items ?? []);
+        if (items.some((item) => item.kind === "file" && item.type.startsWith("image/"))) {
+          return true;
+        }
+
+        return Boolean(getFirstImageFile(dataTransfer));
+      }
+
+      function getFirstImageFile(dataTransfer) {
+        const files = Array.from(dataTransfer?.files ?? []);
+        return files.find((file) => file.type.startsWith("image/")) ?? null;
+      }
+
+      async function handleImageFile(file) {
+        try {
+          state.image = await loadImage(file);
+
+          const imageInput = form?.elements.namedItem("image");
+          if (imageInput instanceof HTMLInputElement && "files" in imageInput) {
+            const transfer = new DataTransfer();
+            transfer.items.add(file);
+            imageInput.files = transfer.files;
+          }
+
+          renderPreview();
+        } catch (error) {
+          state.image = null;
+          renderPreview();
         }
       }
 
