@@ -2,7 +2,7 @@
 
 Warning: this project was created with the help of AI.
 
-Small standalone HTML tools collected in one repository. The project is inspired by [simonw/tools](https://github.com/simonw/tools/), but kept deliberately smaller and simpler. Right now there are only three tools, but the plan is to keep growing the collection over time.
+Small standalone HTML tools collected in one repository. The project is inspired by [simonw/tools](https://github.com/simonw/tools/), but kept deliberately smaller and simpler. Right now there are only four tools, but the plan is to keep growing the collection over time.
 
 ## What this is
 
@@ -17,6 +17,7 @@ This repository is a set of tiny browser tools for everyday tasks, with a delibe
 
 ### Text
 
+- [`flow.html`](./flow.html) Freewrite under pressure. Pause too long — lose everything.
 - [`charcount.html`](./charcount.html) Count characters and words in a text.
 
 ### Images and media
