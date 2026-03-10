@@ -286,8 +286,10 @@
         position: absolute;
         inset: 0;
         width: 100%;
+        max-width: 70ch;
         height: 100%;
-        padding: 60px clamp(20px, 8vw, 120px);
+        margin: 0 auto;
+        padding: 60px 20px;
         background: transparent;
         border: none;
         outline: none;
@@ -342,42 +344,34 @@
       }
 
       #inactivity-hud {
-        display: none;
+        display: block;
       }
 
       /* ------------------------------------------------------------------ */
-      /* Failure screen                                                      */
+      /* Toast notification                                                  */
       /* ------------------------------------------------------------------ */
 
-      #screen-failure {
-        display: none;
+      .toast {
         position: fixed;
-        inset: 0;
-        z-index: 20;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 32px;
-        background:
-          radial-gradient(circle at top, rgba(125, 226, 255, 0.06), transparent 28%),
-          linear-gradient(145deg, var(--bg-top), var(--bg-bottom));
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+        background: rgba(180, 40, 40, 0.35);
+        border: 1px solid rgba(255, 100, 100, 0.25);
+        backdrop-filter: blur(16px);
+        color: var(--text);
+        font-size: 0.95rem;
+        padding: 12px 24px;
+        border-radius: 999px;
+        z-index: 30;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 300ms ease, transform 300ms ease;
       }
 
-      #screen-failure h2 {
-        margin: 0 0 14px;
-        font-size: clamp(2.4rem, 6vw, 4rem);
-        letter-spacing: -0.04em;
-        line-height: 1;
-      }
-
-      #screen-failure p {
-        margin: 0 0 36px;
-        color: var(--muted);
-        font-size: 1.05rem;
-        max-width: 38ch;
-        line-height: 1.6;
+      .toast.visible {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
       }
 
       /* ------------------------------------------------------------------ */
@@ -457,7 +451,7 @@
         }
 
         #writing-textarea {
-          padding: 48px 20px 120px;
+          padding: 48px 16px 120px;
           font-size: 1.05rem;
         }
 
@@ -474,6 +468,11 @@
       /* Utility                                                             */
       /* ------------------------------------------------------------------ */
 
+      .stealth-link {
+        color: inherit;
+        text-decoration: none;
+      }
+
       .hidden {
         display: none !important;
       }
@@ -489,7 +488,7 @@
 
         <section class="hero">
           <h1>flow</h1>
-          <p>Write without stopping. Pause too long — lose everything.</p>
+          <p><a class="stealth-link" href="https://genius.com/7956166">Write like you're running out of time.</a></p>
         </section>
 
         <div class="panel">
@@ -546,18 +545,10 @@
             </label>
 
             <label class="check-row">
-              <input type="checkbox" id="chk-session-timer" />
+              <input type="checkbox" id="chk-zen-mode" />
               <span class="check-text">
-                <span class="check-title">Show session timer</span>
-                <span class="check-desc">Displays remaining session time while writing.</span>
-              </span>
-            </label>
-
-            <label class="check-row">
-              <input type="checkbox" id="chk-inactivity-timer" />
-              <span class="check-text">
-                <span class="check-title">Show inactivity timer</span>
-                <span class="check-desc">Displays a countdown to text erasure while writing.</span>
+                <span class="check-title">Zen mode</span>
+                <span class="check-desc">Hides all timers for a distraction-free experience.</span>
               </span>
             </label>
           </div>
@@ -573,7 +564,7 @@
     <div id="screen-writing">
       <textarea
         id="writing-textarea"
-        placeholder="Start typing…"
+        placeholder="Go"
         autocomplete="off"
         autocorrect="off"
         autocapitalize="off"
@@ -588,14 +579,7 @@
       </div>
     </div>
 
-    <!-- ================================================================== -->
-    <!-- FAILURE SCREEN                                                      -->
-    <!-- ================================================================== -->
-    <div id="screen-failure">
-      <h2>Text lost.</h2>
-      <p>You paused too long. The words are gone.</p>
-      <button class="btn btn-primary" id="btn-try-again">Try again</button>
-    </div>
+    <div class="toast" id="toast"></div>
 
     <!-- ================================================================== -->
     <!-- SUCCESS SCREEN                                                      -->
@@ -640,7 +624,7 @@
 
       const STATE = { START: "start", WRITING: "writing", SUCCESS: "success", FAILURE: "failure" };
 
-      const DEFAULT_CONFIG = { duration: 5, timeout: 5, showSessionTimer: false, showInactivityTimer: false, softMode: false, invisibleMode: false };
+      const DEFAULT_CONFIG = { duration: 5, timeout: 5, zenMode: false, softMode: false, invisibleMode: false };
 
       function eraseLastParagraph(text) {
         const trimmed = text.replace(/(\n\n)+$/, "");
@@ -706,7 +690,7 @@
         if (progress <= THRESHOLD) return null;
         const intensity = (progress - THRESHOLD) / (1 - THRESHOLD);
         const alpha = (intensity * 0.55).toFixed(3);
-        return "rgba(180,40,40," + alpha + ")";
+        return "rgba(0,0,0," + alpha + ")";
       }
 
       function formatTime(ms) {
@@ -730,7 +714,6 @@
       const screens = {
         start:   document.getElementById("screen-start"),
         writing: document.getElementById("screen-writing"),
-        failure: document.getElementById("screen-failure"),
         success: document.getElementById("screen-success"),
       };
 
@@ -740,7 +723,6 @@
       const inactivityHud   = document.getElementById("inactivity-hud");
 
       const btnStart      = document.getElementById("btn-start");
-      const btnTryAgain   = document.getElementById("btn-try-again");
       const btnCopy       = document.getElementById("btn-copy");
       const btnDownload   = document.getElementById("btn-download");
       const btnNewSession = document.getElementById("btn-new-session");
@@ -749,10 +731,9 @@
       const statChars = document.getElementById("stat-chars");
       const successText = document.getElementById("success-text");
 
-      const chkSessionTimer    = document.getElementById("chk-session-timer");
-      const chkInactivityTimer = document.getElementById("chk-inactivity-timer");
-      const chkSoftMode        = document.getElementById("chk-soft-mode");
-      const chkInvisibleMode   = document.getElementById("chk-invisible-mode");
+      const chkZenMode       = document.getElementById("chk-zen-mode");
+      const chkSoftMode      = document.getElementById("chk-soft-mode");
+      const chkInvisibleMode = document.getElementById("chk-invisible-mode");
 
       // ---- State ----
       let session = createSession();
@@ -760,13 +741,20 @@
       let lastTs  = null;
 
       // ---- Screen management ----
+      const toastEl = document.getElementById("toast");
+      let toastTimer = null;
+
       function showScreen(name) {
         for (const [key, el] of Object.entries(screens)) {
-          el.style.display = key === name ? (name === "writing" ? "block" : "block") : "none";
+          el.style.display = key === name ? "block" : "none";
         }
-        if (name === "failure") {
-          screens.failure.style.display = "flex";
-        }
+      }
+
+      function showToast(message, durationMs = 3000) {
+        clearTimeout(toastTimer);
+        toastEl.textContent = message;
+        toastEl.classList.add("visible");
+        toastTimer = setTimeout(() => toastEl.classList.remove("visible"), durationMs);
       }
 
       // ---- Read config from UI ----
@@ -790,10 +778,9 @@
         return {
           duration,
           timeout,
-          showSessionTimer:    chkSessionTimer.checked,
-          showInactivityTimer: chkInactivityTimer.checked,
-          softMode:            chkSoftMode.checked,
-          invisibleMode:       chkInvisibleMode.checked,
+          zenMode:       chkZenMode.checked,
+          softMode:      chkSoftMode.checked,
+          invisibleMode: chkInvisibleMode.checked,
         };
       }
 
@@ -834,7 +821,7 @@
         const color = computeWarningColor(progress);
         warningOverlay.style.background = color ?? "transparent";
 
-        if (session.config.showInactivityTimer) {
+        if (!session.config.zenMode) {
           const inactMs = getInactivityRemainingMs(session);
           inactivityHud.textContent = Math.ceil(inactMs / 1000) + " s";
         }
@@ -846,30 +833,38 @@
       }
 
       // ---- Transitions ----
+      let waitingForFirstKeystroke = false;
+
       function transitionToWriting() {
         const config = readConfig();
-        if (!config) return; // invalid input — fields are highlighted
+        if (!config) return;
 
         session = startSession(createSession(config));
 
         textarea.value = "";
         textarea.classList.toggle("invisible", config.invisibleMode);
 
-        sessionHud.style.display    = config.showSessionTimer    ? "block" : "none";
-        inactivityHud.style.display = config.showInactivityTimer ? "block" : "none";
+        const showTimers = !config.zenMode;
+        sessionHud.style.display    = showTimers ? "block" : "none";
+        inactivityHud.style.display = showTimers ? "block" : "none";
 
-        // Reset warning
         warningOverlay.style.background = "transparent";
 
         showScreen("writing");
         textarea.focus();
 
+        waitingForFirstKeystroke = true;
+      }
+
+      function beginTimers() {
+        waitingForFirstKeystroke = false;
         lastTs = null;
         rafId = requestAnimationFrame(loop);
       }
 
       function transitionToFailure() {
-        showScreen("failure");
+        transitionToStart();
+        showToast("Text lost — you paused too long.");
       }
 
       function transitionToSuccess() {
@@ -889,12 +884,18 @@
 
       // ---- Event listeners ----
       btnStart.addEventListener("click", transitionToWriting);
-      btnTryAgain.addEventListener("click", transitionToStart);
       btnNewSession.addEventListener("click", transitionToStart);
 
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && session.state === STATE.START && !e.target.matches("textarea")) {
+          e.preventDefault();
+          transitionToWriting();
+        }
+      });
+
       textarea.addEventListener("input", () => {
+        if (waitingForFirstKeystroke) beginTimers();
         session = onKeystroke(session, textarea.value);
-        // Immediately clear warning on keystroke
         warningOverlay.style.background = "transparent";
       });
 
@@ -947,7 +948,39 @@
         });
       }
 
+      // ---- Persist settings ----
+      const STORAGE_KEY = "flow-settings";
+
+      function saveSettings() {
+        const data = {
+          duration:      inputDuration.value,
+          timeout:       inputTimeout.value,
+          zenMode:       chkZenMode.checked,
+          softMode:      chkSoftMode.checked,
+          invisibleMode: chkInvisibleMode.checked,
+        };
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+      }
+
+      function loadSettings() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          if (data.duration)      inputDuration.value     = data.duration;
+          if (data.timeout)       inputTimeout.value      = data.timeout;
+          if (data.zenMode !== undefined)       chkZenMode.checked       = data.zenMode;
+          if (data.softMode !== undefined)      chkSoftMode.checked      = data.softMode;
+          if (data.invisibleMode !== undefined) chkInvisibleMode.checked = data.invisibleMode;
+        } catch {}
+      }
+
+      for (const el of [inputDuration, inputTimeout, chkZenMode, chkSoftMode, chkInvisibleMode]) {
+        el.addEventListener("change", saveSettings);
+      }
+
       // ---- Initial render ----
+      loadSettings();
       showScreen("start");
     </script>
   </body>
