@@ -950,9 +950,6 @@
         const config = readConfig();
         if (!config) return;
 
-        // User decided to start; hide the intro so it doesn't distract later.
-        dismissIntro();
-
         session = startSession(createSession(config));
 
         textarea.value = "";
