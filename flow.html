@@ -142,6 +142,67 @@
       }
 
       /* ------------------------------------------------------------------ */
+      /* Intro banner                                                      */
+      /* ------------------------------------------------------------------ */
+
+      .intro-banner {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 16px;
+        padding: 14px 16px;
+        background: rgba(8, 12, 22, 0.45);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-md);
+      }
+
+      .intro-copy {
+        color: var(--muted);
+        line-height: 1.55;
+        font-size: 0.95rem;
+      }
+
+      .intro-copy strong {
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .intro-close {
+        flex: 0 0 auto;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border-radius: 999px;
+        border: 1px solid var(--panel-border);
+        background: transparent;
+        color: var(--muted-strong);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 1.05rem;
+        line-height: 1;
+        transition:
+          color 140ms ease,
+          border-color 140ms ease,
+          background 140ms ease,
+          transform 120ms ease;
+      }
+
+      .intro-close:hover {
+        color: var(--text);
+        border-color: rgba(125, 226, 255, 0.32);
+      }
+
+      .intro-close:active {
+        transform: scale(0.97);
+      }
+
+      .intro-close:focus-visible {
+        outline: 1px solid rgba(125, 226, 255, 0.45);
+        outline-offset: 3px;
+      }
+
+      /* ------------------------------------------------------------------ */
       /* Settings controls                                                   */
       /* ------------------------------------------------------------------ */
 
@@ -519,6 +580,21 @@
         </section>
 
         <div class="panel">
+          <div class="intro-banner" id="flow-intro">
+            <div class="intro-copy">
+              Writing under pressure: if you stop typing for too long, you lose your progress. Start a timed session and keep writing till the end to save your work. 
+              <p>If you keep postponing writing something, it can help you create a first draft that can be improved later in a more relaxed way.</p>
+            </div>
+            <button
+              class="intro-close"
+              id="flow-intro-close"
+              type="button"
+              aria-label="Dismiss intro"
+            >
+              X
+            </button>
+          </div>
+
           <button class="btn btn-primary" id="btn-start" style="width:100%">Start</button>
 
           <details class="settings-details">
@@ -767,6 +843,9 @@
       const chkSoftMode      = document.getElementById("chk-soft-mode");
       const chkInvisibleMode = document.getElementById("chk-invisible-mode");
 
+      const introBanner = document.getElementById("flow-intro");
+      const introClose  = document.getElementById("flow-intro-close");
+
       // ---- State ----
       let session = createSession();
       let rafId   = null;
@@ -870,6 +949,9 @@
       function transitionToWriting() {
         const config = readConfig();
         if (!config) return;
+
+        // User decided to start; hide the intro so it doesn't distract later.
+        dismissIntro();
 
         session = startSession(createSession(config));
 
@@ -1011,8 +1093,31 @@
         el.addEventListener("change", saveSettings);
       }
 
+      // ---- Intro visibility (dismissible) ----
+      const INTRO_STORAGE_KEY = "flow-intro-dismissed";
+
+      function isIntroDismissed() {
+        try {
+          return localStorage.getItem(INTRO_STORAGE_KEY) === "1";
+        } catch {
+          return false;
+        }
+      }
+
+      function dismissIntro() {
+        if (introBanner) introBanner.classList.add("hidden");
+        try { localStorage.setItem(INTRO_STORAGE_KEY, "1"); } catch {}
+      }
+
+      if (introClose) {
+        introClose.addEventListener("click", dismissIntro);
+      }
+
       // ---- Initial render ----
       loadSettings();
+      if (introBanner && isIntroDismissed()) {
+        introBanner.classList.add("hidden");
+      }
       showScreen("start");
     </script>
   </body>
