@@ -158,6 +158,33 @@
         }
       }
 
+      /* ------------------------------------------------------------------ */
+      /* Settings collapsible                                              */
+      /* ------------------------------------------------------------------ */
+
+      .settings-details {
+        margin-top: 16px;
+      }
+
+      .settings-details summary {
+        list-style: none;
+        width: 100%;
+        cursor: pointer;
+      }
+
+      .settings-details summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .settings-details summary:focus-visible {
+        outline: 1px solid rgba(125, 226, 255, 0.45);
+        outline-offset: 3px;
+      }
+
+      .settings-details[open] summary {
+        margin-bottom: 18px;
+      }
+
       .setting-row {
         display: flex;
         flex-direction: column;
@@ -492,7 +519,12 @@
         </section>
 
         <div class="panel">
-          <div class="settings-grid">
+          <button class="btn btn-primary" id="btn-start" style="width:100%">Start</button>
+
+          <details class="settings-details">
+            <summary class="btn btn-secondary">Settings</summary>
+
+            <div class="settings-grid">
             <!-- Session duration -->
             <div class="setting-row">
               <label class="setting-label" for="input-duration">Session duration</label>
@@ -553,7 +585,7 @@
             </label>
           </div>
 
-          <button class="btn btn-primary" id="btn-start" style="width:100%">Start</button>
+          </details>
         </div>
       </main>
     </div>
