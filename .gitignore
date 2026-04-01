@@ -6,3 +6,6 @@
 !assets/
 !assets/fonts/
 !assets/fonts/*.ttf
+!models/
+!models/**
+models/.DS_Store
