@@ -24,3 +24,7 @@ This repository is a set of tiny browser tools for everyday tasks, with a delibe
 
 - [`caption.html`](./caption.html) Add readable text overlays to images.
 - [`palette.html`](./palette.html) Extract dominant colors from any image.
+
+### Science
+
+- [`temperature.html`](./temperature.html) Explore how temperature scales relate.
