@@ -61,38 +61,28 @@
         line-height: 1.65;
       }
 
-      .tool-card {
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        border-radius: var(--radius-xl);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(22px);
-      }
-
       .section-label {
         letter-spacing: 0.08em;
         text-transform: uppercase;
         font-size: 0.78rem;
-      }
-
-      .section-label {
         color: var(--muted-strong);
       }
 
       .catalog {
         display: grid;
-        gap: 24px;
+        gap: 28px;
       }
 
       .section {
         display: grid;
-        gap: 14px;
+        gap: 8px;
       }
 
       .section-header {
         display: flex;
         align-items: center;
         gap: 14px;
+        margin-bottom: 4px;
       }
 
       .section-header::after {
@@ -102,59 +92,56 @@
         background: linear-gradient(90deg, rgba(125, 226, 255, 0.28), rgba(125, 226, 255, 0));
       }
 
-      .section-description {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.6;
-      }
-
       .tool-list {
         display: grid;
-        gap: 16px;
+        gap: 0;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(22px);
+        padding: 4px 22px;
       }
 
-      .tool-card {
-        display: grid;
-        gap: 10px;
-        padding: 20px 22px;
+      .tool-link {
+        display: block;
+        padding: 10px 0;
         text-decoration: none;
         color: inherit;
-        transition:
-          transform 160ms ease,
-          border-color 160ms ease,
-          box-shadow 160ms ease,
-          background 160ms ease;
+        font-size: 0.98rem;
+        line-height: 1.5;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: color 140ms ease;
       }
 
-      .tool-card:hover,
-      .tool-card:focus-visible {
-        transform: translateY(-3px);
-        border-color: rgba(125, 226, 255, 0.38);
-        box-shadow: 0 28px 88px rgba(6, 10, 20, 0.5);
+      .tool-link:last-child {
+        border-bottom: none;
+      }
+
+      .tool-link:hover,
+      .tool-link:focus-visible {
+        color: var(--accent-strong);
         outline: none;
       }
 
-      .tool-title {
-        margin: 0;
-        font-size: clamp(1.4rem, 3vw, 1.8rem);
-        line-height: 1.05;
+      .tool-link strong {
+        color: var(--text);
+        font-weight: 600;
+        transition: color 140ms ease;
       }
 
-      .tool-desc {
-        margin: 0;
+      .tool-link:hover strong {
+        color: var(--accent);
+      }
+
+      .tool-link-desc {
         color: var(--muted);
-        font-size: 0.98rem;
-        line-height: 1.62;
       }
 
       @media (max-width: 760px) {
         .page {
           width: min(100vw - 20px, 700px);
           padding-top: 28px;
-        }
-
-        .tool-card {
-          padding: 18px;
         }
       }
     </style>
@@ -171,104 +158,64 @@
       <section class="catalog">
         <div class="section">
           <div class="section-header">
-            <div class="section-label">Text</div>
+            <div class="section-label">📝 Text</div>
           </div>
 
           <div class="tool-list">
-            <a class="tool-card" href="./flow.html">
-              <h2 class="tool-title">flow</h2>
-              <p class="tool-desc">
-                Write like you're running out of time.
-              </p>
-            </a>
-
-            <a class="tool-card" href="./charcount.html">
-              <h2 class="tool-title">charcount</h2>
-              <p class="tool-desc">
-                Count characters and words in a text.
-              </p>
-            </a>
-
-            <a class="tool-card" href="./tokinem.html">
-              <h2 class="tool-title">tokinem</h2>
-              <p class="tool-desc">
-                A primitive tokenizer trained on Eminem lyrics.
-              </p>
-            </a>
-
-            <a class="tool-card" href="./tokenopus.html">
-              <h2 class="tool-title">tokenopus</h2>
-              <p class="tool-desc">
-                Count tokens using the Anthropic API (Opus 4.6 & 4.7).
-              </p>
-            </a>
+            <a class="tool-link" href="./flow.html"><strong>flow</strong> <span class="tool-link-desc">— Write like you're running out of time.</span></a>
           </div>
         </div>
 
         <div class="section">
           <div class="section-header">
-            <div class="section-label">Images</div>
+            <div class="section-label">🖼️ Images</div>
           </div>
 
           <div class="tool-list">
-            <a class="tool-card" href="./caption.html">
-              <h2 class="tool-title">caption</h2>
-              <p class="tool-desc">
-                Add readable text overlays to images.
-              </p>
-            </a>
-
-            <a class="tool-card" href="./palette.html">
-              <h2 class="tool-title">palette</h2>
-              <p class="tool-desc">
-                Extract dominant colors from any image.
-              </p>
-            </a>
+            <a class="tool-link" href="./caption.html"><strong>caption</strong> <span class="tool-link-desc">— Add readable text overlays to images.</span></a>
+            <a class="tool-link" href="./palette.html"><strong>palette</strong> <span class="tool-link-desc">— Extract dominant colors from any image.</span></a>
           </div>
         </div>
 
         <div class="section">
           <div class="section-header">
-            <div class="section-label">Fitness</div>
+            <div class="section-label">💪 Fitness</div>
           </div>
 
           <div class="tool-list">
-            <a class="tool-card" href="./squatcount.html">
-              <h2 class="tool-title">squatcount</h2>
-              <p class="tool-desc">
-                Count squats with your webcam.
-              </p>
-            </a>
+            <a class="tool-link" href="./squatcount.html"><strong>squatcount</strong> <span class="tool-link-desc">— Count squats with your webcam.</span></a>
           </div>
         </div>
 
         <div class="section">
           <div class="section-header">
-            <div class="section-label">Visualizations</div>
+            <div class="section-label">⏱️ Productivity</div>
           </div>
 
           <div class="tool-list">
-            <a class="tool-card" href="./temperature.html">
-              <h2 class="tool-title">temperature</h2>
-              <p class="tool-desc">
-                Explore how temperature scales relate.
-              </p>
-            </a>
+            <a class="tool-link" href="./countdown.html"><strong>countdown</strong> <span class="tool-link-desc">— Count down to any moment, or run a Pomodoro timer.</span></a>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-header">
+            <div class="section-label">📊 Visualizations</div>
+          </div>
+
+          <div class="tool-list">
+            <a class="tool-link" href="./temperature.html"><strong>temperature</strong> <span class="tool-link-desc">— Explore how temperature scales relate.</span></a>
           </div>
         </div>
 
+
         <div class="section">
           <div class="section-header">
-            <div class="section-label">Productivity</div>
+            <div class="section-label">📏 Text metrics</div>
           </div>
 
           <div class="tool-list">
-            <a class="tool-card" href="./countdown.html">
-              <h2 class="tool-title">countdown</h2>
-              <p class="tool-desc">
-                Count down to any date, or run a Pomodoro timer.
-              </p>
-            </a>
+            <a class="tool-link" href="./charcount.html"><strong>charcount</strong> <span class="tool-link-desc">— Count characters and words in a text.</span></a>
+            <a class="tool-link" href="./tokenopus.html"><strong>tokenopus</strong> <span class="tool-link-desc">— Count tokens using the Anthropic API (Opus 4.6 & 4.7).</span></a>
+            <a class="tool-link" href="./tokinem.html"><strong>tokinem</strong> <span class="tool-link-desc">— Count tokens based on Eminem lyrics.</span></a>
           </div>
         </div>
 
