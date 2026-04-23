@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tokenopus</title>
+    <style>
+      :root {
+        --bg-top: #121826;
+        --bg-bottom: #1d2742;
+        --panel: rgba(16, 22, 36, 0.76);
+        --panel-border: rgba(160, 190, 255, 0.16);
+        --panel-soft: rgba(8, 12, 22, 0.42);
+        --text: #eef2ff;
+        --muted: #9ca8c7;
+        --muted-strong: #c6d0ea;
+        --accent: #7de2ff;
+        --accent-strong: #4db9ff;
+        --accent-soft: rgba(125, 226, 255, 0.14);
+        --error: #ff7e7e;
+        --shadow: 0 24px 80px rgba(6, 10, 20, 0.42);
+        --radius-xl: 24px;
+        --radius-lg: 18px;
+        --radius-md: 14px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top, rgba(125, 226, 255, 0.16), transparent 28%),
+          linear-gradient(145deg, var(--bg-top), var(--bg-bottom));
+      }
+
+      .page {
+        width: min(700px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 40px 0 72px;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 24px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 140ms ease, transform 140ms ease;
+      }
+
+      .back-link:hover,
+      .back-link:focus-visible {
+        color: var(--accent-strong);
+        outline: none;
+        transform: translateX(-2px);
+      }
+
+      .hero {
+        margin-bottom: 32px;
+      }
+
+      .hero h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2.4rem, 6vw, 4rem);
+        line-height: 0.93;
+        letter-spacing: -0.05em;
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 52ch;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(22px);
+        padding: 28px 28px 32px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 280px;
+        resize: vertical;
+        padding: 22px 20px;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+          var(--panel-soft);
+        color: var(--text);
+        font: inherit;
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+
+      textarea::placeholder {
+        color: rgba(198, 208, 234, 0.6);
+      }
+
+      textarea:focus-visible {
+        outline: 1px solid rgba(125, 226, 255, 0.45);
+        border-color: rgba(125, 226, 255, 0.35);
+      }
+
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 24px;
+        border: none;
+        border-radius: 999px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 140ms ease, transform 120ms ease, border-color 140ms ease;
+      }
+
+      .btn:active {
+        transform: scale(0.97);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: var(--muted-strong);
+        border: 1px solid var(--panel-border);
+      }
+
+      .btn-secondary:hover {
+        border-color: rgba(125, 226, 255, 0.32);
+        color: var(--text);
+      }
+
+      .btn-primary {
+        background: var(--accent-soft);
+        color: var(--accent);
+        border: 1px solid rgba(125, 226, 255, 0.25);
+      }
+
+      .btn-primary:hover {
+        background: rgba(125, 226, 255, 0.22);
+        border-color: rgba(125, 226, 255, 0.4);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn:disabled:active {
+        transform: none;
+      }
+
+      /* ---- Results ---- */
+
+      .results-section {
+        margin-top: 28px;
+      }
+
+      .results-heading {
+        margin: 0 0 14px;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted-strong);
+      }
+
+      .results-list {
+        display: grid;
+        gap: 0;
+      }
+
+      .result-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .result-row:last-child {
+        border-bottom: none;
+      }
+
+      .result-label {
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .result-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        color: var(--accent);
+      }
+
+      .result-value.empty {
+        color: var(--muted);
+        font-weight: 400;
+        font-size: 1rem;
+      }
+
+      .result-value.error {
+        color: var(--error);
+        font-weight: 400;
+        font-size: 0.88rem;
+        text-align: right;
+        max-width: 60%;
+      }
+
+      /* ---- Modal ---- */
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(6, 10, 20, 0.7);
+        backdrop-filter: blur(6px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 200ms ease;
+      }
+
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal {
+        width: min(420px, calc(100vw - 32px));
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(22px);
+        padding: 28px;
+      }
+
+      .modal h2 {
+        margin: 0 0 8px;
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+
+      .modal p {
+        margin: 0 0 20px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.6;
+      }
+
+      .modal input[type="password"] {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--panel-soft);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+        margin-bottom: 16px;
+      }
+
+      .modal input[type="password"]:focus-visible {
+        outline: 1px solid rgba(125, 226, 255, 0.45);
+        border-color: rgba(125, 226, 255, 0.35);
+      }
+
+      .modal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 600px) {
+        .page {
+          width: min(100vw - 20px, 700px);
+          padding-top: 28px;
+          padding-bottom: 48px;
+        }
+
+        .panel {
+          padding: 20px 18px 24px;
+        }
+
+        textarea {
+          min-height: 200px;
+          font-size: 1.02rem;
+        }
+
+        .button-row {
+          flex-direction: column;
+        }
+
+        .button-row .btn {
+          width: 100%;
+        }
+
+        .modal {
+          padding: 22px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <a class="back-link" href="./index.html">← all tools</a>
+
+      <section class="hero">
+        <h1>tokenopus</h1>
+        <p>Count tokens for Opus 4.6 / 4.7. Requires Anthropic API key.</p>
+      </section>
+
+      <div class="panel">
+        <textarea
+          id="textInput"
+          spellcheck="false"
+          placeholder="Enter text to count tokens for."
+        ></textarea>
+
+        <div class="button-row">
+          <button class="btn btn-primary" id="countButton" type="button">Count tokens</button>
+          <button class="btn btn-secondary" id="clearButton" type="button">Clear</button>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+          <h2 class="results-heading">Results</h2>
+          <div class="results-list">
+            <div class="result-row">
+              <span class="result-label">Characters</span>
+              <span class="result-value" id="charValue">0</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Opus 4.6</span>
+              <span class="result-value empty" id="opus46Value">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Opus 4.7</span>
+              <span class="result-value empty" id="opus47Value">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- API Key Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal" role="dialog" aria-labelledby="modalTitle">
+        <h2 id="modalTitle">Anthropic API key required</h2>
+        <p>Your key is stored in your browser and sent directly to the Anthropic API. It is never sent anywhere else.</p>
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-…" autocomplete="off" />
+        <div class="modal-buttons">
+          <button class="btn btn-secondary" id="modalCancel" type="button">Cancel</button>
+          <button class="btn btn-primary" id="modalSave" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "https://api.anthropic.com/v1/messages/count_tokens";
+      const MODELS = [
+        { id: "claude-opus-4-6", el: document.getElementById("opus46Value") },
+        { id: "claude-opus-4-7", el: document.getElementById("opus47Value") }
+      ];
+
+      const textInput = document.getElementById("textInput");
+      const countButton = document.getElementById("countButton");
+      const clearButton = document.getElementById("clearButton");
+
+      const modalOverlay = document.getElementById("modalOverlay");
+      const apiKeyInput = document.getElementById("apiKeyInput");
+      const modalCancel = document.getElementById("modalCancel");
+      const modalSave = document.getElementById("modalSave");
+
+      const STORAGE_KEY = "tokenopus_api_key";
+      let pendingCount = false;
+
+      function getApiKey() {
+        return localStorage.getItem(STORAGE_KEY);
+      }
+
+      function setResultValue(el, value, isError) {
+        if (value === null) {
+          el.textContent = "—";
+          el.className = "result-value empty";
+        } else if (isError) {
+          el.textContent = value;
+          el.className = "result-value error";
+        } else {
+          el.textContent = value.toLocaleString() + " tokens";
+          el.className = "result-value";
+        }
+      }
+
+      function openModal() {
+        apiKeyInput.value = getApiKey() || "";
+        modalOverlay.classList.add("open");
+        setTimeout(() => apiKeyInput.focus(), 100);
+      }
+
+      function closeModal() {
+        modalOverlay.classList.remove("open");
+      }
+
+      async function countTokens() {
+        const text = textInput.value;
+        if (!text.trim()) return;
+
+        let apiKey = getApiKey();
+        if (!apiKey) {
+          pendingCount = true;
+          openModal();
+          return;
+        }
+
+        countButton.disabled = true;
+        countButton.textContent = "Counting…";
+
+        document.getElementById("charValue").textContent = text.length.toLocaleString();
+
+        MODELS.forEach(m => setResultValue(m.el, null));
+
+        await Promise.all(MODELS.map(async (model) => {
+          try {
+            const res = await fetch(API_URL, {
+              method: "POST",
+              headers: {
+                "content-type": "application/json",
+                "x-api-key": apiKey,
+                "anthropic-version": "2023-06-01",
+                "anthropic-dangerous-direct-browser-access": "true"
+              },
+              body: JSON.stringify({
+                model: model.id,
+                messages: [{ role: "user", content: text }]
+              })
+            });
+
+            if (!res.ok) {
+              const body = await res.json().catch(() => null);
+              const msg = body?.error?.message || `HTTP ${res.status}`;
+              setResultValue(model.el, msg, true);
+              if (res.status === 401) {
+                localStorage.removeItem(STORAGE_KEY);
+              }
+              return;
+            }
+
+            const data = await res.json();
+            setResultValue(model.el, data.input_tokens, false);
+          } catch (err) {
+            setResultValue(model.el, err.message, true);
+          }
+        }));
+
+        countButton.disabled = false;
+        countButton.textContent = "Count tokens";
+      }
+
+      countButton.addEventListener("click", countTokens);
+
+      clearButton.addEventListener("click", () => {
+        textInput.value = "";
+        MODELS.forEach(m => setResultValue(m.el, null));
+        document.getElementById("charValue").textContent = "0";
+        textInput.focus();
+      });
+
+      modalCancel.addEventListener("click", () => {
+        pendingCount = false;
+        closeModal();
+      });
+
+      modalSave.addEventListener("click", () => {
+        const key = apiKeyInput.value.trim();
+        if (key) {
+          localStorage.setItem(STORAGE_KEY, key);
+        }
+        closeModal();
+        if (pendingCount) {
+          pendingCount = false;
+          countTokens();
+        }
+      });
+
+      apiKeyInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") modalSave.click();
+        if (e.key === "Escape") modalCancel.click();
+      });
+
+      modalOverlay.addEventListener("click", (e) => {
+        if (e.target === modalOverlay) {
+          pendingCount = false;
+          closeModal();
+        }
+      });
+    </script>
+  </body>
+</html>
