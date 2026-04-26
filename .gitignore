@@ -8,6 +8,8 @@
 !assets/fonts/*.ttf
 !assets/tfjs/
 !assets/tfjs/**
+!assets/three/
+!assets/three/**
 !models/
 !models/**
 models/.DS_Store
