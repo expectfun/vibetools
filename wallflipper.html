@@ -574,15 +574,17 @@ function createCar() {
     emissive: 0x00aaff, emissiveIntensity: 0.6
   });
   const cock = new THREE.Mesh(cockGeo, cockMat);
-  cock.position.set(0, CHC * 0.58, -CL * 0.1);
+  cock.position.set(0, CHC * 0.58, 0);
   carGroup.add(cock);
 
-  // Engine glow
+  // Engine glow (front + rear)
   const engGeo = new THREE.BoxGeometry(CW * 0.7, CHC * 0.25, 0.25);
   const engMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-  const eng = new THREE.Mesh(engGeo, engMat);
-  eng.position.set(0, CHC * 0.28, -CL * 0.52);
-  carGroup.add(eng);
+  [-1, 1].forEach(s => {
+    const eng = new THREE.Mesh(engGeo, engMat);
+    eng.position.set(0, CHC * 0.28, s * CL * 0.52);
+    carGroup.add(eng);
+  });
 
   // Side neon strips
   const stripGeo = new THREE.BoxGeometry(0.08, CHC * 0.18, CL * 0.85);
@@ -593,12 +595,16 @@ function createCar() {
     carGroup.add(strip);
   });
 
-  // Headlight
-  const headlight = new THREE.SpotLight(0x00ffff, 2, 60, Math.PI / 6, 0.5);
-  headlight.position.set(0, CHC * 0.3, CL * 0.5);
-  headlight.target.position.set(0, 0, carZ + 30);
-  carGroup.add(headlight);
-  carGroup.add(headlight.target);
+  // Headlights (front + rear)
+  [-1, 1].forEach(s => {
+    const hl = new THREE.SpotLight(0x00ffff, 2, 60, Math.PI / 6, 0.5);
+    hl.position.set(0, CHC * 0.3, s * CL * 0.5);
+    carGroup.add(hl);
+    const tgt = new THREE.Object3D();
+    tgt.position.set(0, -CHC * 0.3, s * 30);
+    carGroup.add(tgt);
+    hl.target = tgt;
+  });
 
   // Underglow
   const underglow = new THREE.PointLight(0x00ffff, 1.5, 10);
