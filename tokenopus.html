@@ -92,7 +92,7 @@
 
       textarea {
         width: 100%;
-        min-height: 280px;
+        min-height: 220px;
         resize: vertical;
         padding: 22px 20px;
         border-radius: var(--radius-lg);
@@ -208,6 +208,13 @@
         font-size: 0.94rem;
       }
 
+      .result-label.model-label {
+        color: var(--text);
+        font-size: 1.02rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+      }
+
       .result-value {
         font-size: 1.3rem;
         font-weight: 700;
@@ -312,7 +319,7 @@
         }
 
         textarea {
-          min-height: 200px;
+          min-height: 160px;
           font-size: 1.02rem;
         }
 
@@ -356,15 +363,19 @@
           <div class="results-list">
             <div class="result-row">
               <span class="result-label">Characters</span>
-              <span class="result-value" id="charValue">0</span>
+              <span class="result-value empty" id="charValue">—</span>
             </div>
             <div class="result-row">
-              <span class="result-label">Opus 4.6</span>
+              <span class="result-label model-label">Opus 4.6</span>
               <span class="result-value empty" id="opus46Value">—</span>
             </div>
             <div class="result-row">
-              <span class="result-label">Opus 4.7</span>
+              <span class="result-label model-label">Opus 4.7</span>
               <span class="result-value empty" id="opus47Value">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label model-label">Change</span>
+              <span class="result-value empty" id="growthValue">—</span>
             </div>
           </div>
         </div>
@@ -399,6 +410,7 @@
       const apiKeyInput = document.getElementById("apiKeyInput");
       const modalCancel = document.getElementById("modalCancel");
       const modalSave = document.getElementById("modalSave");
+      const growthValue = document.getElementById("growthValue");
 
       const STORAGE_KEY = "tokenopus_api_key";
       let pendingCount = false;
@@ -418,6 +430,23 @@
           el.textContent = value.toLocaleString() + " tokens";
           el.className = "result-value";
         }
+      }
+
+      function setGrowthValue(opus46Tokens, opus47Tokens) {
+        if (
+          typeof opus46Tokens !== "number" ||
+          typeof opus47Tokens !== "number" ||
+          opus46Tokens === 0
+        ) {
+          growthValue.textContent = "—";
+          growthValue.className = "result-value empty";
+          return;
+        }
+
+        const growth = ((opus47Tokens - opus46Tokens) / opus46Tokens) * 100;
+        const sign = growth > 0 ? "+" : "";
+        growthValue.textContent = `${sign}${growth.toFixed(2)}%`;
+        growthValue.className = "result-value";
       }
 
       function openModal() {
@@ -445,8 +474,11 @@
         countButton.textContent = "Counting…";
 
         document.getElementById("charValue").textContent = text.length.toLocaleString();
+        setGrowthValue(null, null);
 
         MODELS.forEach(m => setResultValue(m.el, null));
+
+        const results = {};
 
         await Promise.all(MODELS.map(async (model) => {
           try {
@@ -476,10 +508,13 @@
 
             const data = await res.json();
             setResultValue(model.el, data.input_tokens, false);
+            results[model.id] = data.input_tokens;
           } catch (err) {
             setResultValue(model.el, err.message, true);
           }
         }));
+
+        setGrowthValue(results["claude-opus-4-6"], results["claude-opus-4-7"]);
 
         countButton.disabled = false;
         countButton.textContent = "Count tokens";
@@ -490,7 +525,9 @@
       clearButton.addEventListener("click", () => {
         textInput.value = "";
         MODELS.forEach(m => setResultValue(m.el, null));
-        document.getElementById("charValue").textContent = "0";
+        setGrowthValue(null, null);
+        document.getElementById("charValue").textContent = "—";
+        document.getElementById("charValue").className = "result-value empty";
         textInput.focus();
       });
 
